@@ -1,0 +1,29 @@
+#!/bin/bash
+
+BASE_DIR="/home/comfy/projects/FramePack-forWan2.1"
+# export BASH_ENV="/home/comfy/projects/FramePack-forWan2.1/custom.rc"
+
+cd "$BASE_DIR" || exit 1
+cd() {
+    local target_dir
+    if [ $# -eq 0 ]; then
+        target_dir="$BASE_DIR"
+    else
+        # Resolve the absolute path after applying cd argument
+        target_dir="$(realpath -m "$PWD/$1")"
+    fi
+
+    # Check if target_dir is still inside BASE_DIR or exactly BASE_DIR
+    if [[ "$target_dir" == "$BASE_DIR"* ]]; then
+        builtin cd "$target_dir" || echo "Cannot access $target_dir"
+    else
+        echo "Access denied: cannot leave base directory"
+    fi
+}
+
+# export -f cd
+# exec bash --noprofile --norc
+echo "Welcome. You are in a restricted shell environment."
+echo "Your activity is confined to $BASE_DIR"
+PS1="restricted-shell:\w> "
+builtin cd "$BASE_DIR"
