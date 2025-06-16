@@ -299,6 +299,8 @@ def worker(input_image, prompt, n_prompt, seed, total_second_length, latent_wind
 
             # save_bcthw_as_mp4(history_pixels, output_filename, fps=30, crf=mp4_crf)
             video_save_thread = save_video_async(history_pixels, output_filename, fps=30, crf=mp4_crf)
+            
+            # Wait for the video saving thread to complete
             video_save_thread.join()
             
             print(f'Decoded. Current latent shape {real_history_latents.shape}; pixel shape {history_pixels.shape}')
