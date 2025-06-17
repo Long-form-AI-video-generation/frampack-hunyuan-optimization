@@ -298,8 +298,7 @@ def worker(input_image, prompt, n_prompt, seed, total_second_length, latent_wind
             output_filename = os.path.join(outputs_folder, f'{job_id}_{total_generated_latent_frames}.mp4')
 
             # save_bcthw_as_mp4(history_pixels, output_filename, fps=30, crf=mp4_crf)
-            video_save_thread = save_video_async(history_pixels, output_filename, fps=30, crf=mp4_crf)
-            
+            video_save_thread = save_video_async(history_pixels, output_filename, fps=30, crf=mp4_crf, use_nvenc=True)
             # Wait for the video saving thread to complete
             video_save_thread.join()
             
