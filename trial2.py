@@ -4,7 +4,10 @@ Example usage of Wan model with FramePack sampling and quantization
 """
 
 import os
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:32"
+
 import torch
+
 from PIL import Image
 from easydict import EasyDict
 import logging
@@ -40,23 +43,51 @@ def create_config():
     config.sample_neg_prompt = "blurry, low quality, distorted, deformed"
     
     return config
-
+def setup_memory_environment():
+    """Setup optimal memory management environment"""
+    
+    # Set CUDA memory allocation strategy
+    os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+    
+    # Additional memory optimizations
+    os.environ['CUDA_LAUNCH_BLOCKING'] = '1'  # For debugging
+    
+    # Clear any existing GPU memory
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.reset_peak_memory_stats()
+        
+        # Print initial GPU status
+        device = torch.cuda.current_device()
+        total_memory = torch.cuda.get_device_properties(device).total_memory
+        allocated_memory = torch.cuda.memory_allocated(device)
+        free_memory = total_memory - allocated_memory
+        
+        print(f"GPU Device: {torch.cuda.get_device_name(device)}")
+        print(f"Total GPU Memory: {total_memory/1024**3:.2f}GB")
+        print(f"Allocated Memory: {allocated_memory/1024**3:.2f}GB")
+        print(f"Free Memory: {free_memory/1024**3:.2f}GB")
+        
+        # Set memory fraction to be conservative
+        torch.cuda.set_per_process_memory_fraction(0.95)
 
 def main():
-    
-    from huggingface_hub import hf_hub_download
-    import os
-    import shutil
-    file_path = hf_hub_download(
-        repo_id="Kijai/WanVideo_comfy", 
-        filename="Wan2_1-I2V-ATI-14B_fp16.safetensors"
-    )
-    print(file_path)
-    target_dir = "/downloads"
-    os.makedirs(target_dir, exist_ok=True)  # Create it if it doesn't exist
+    num_gpus = torch.cuda.device_count()
+    print(f"PyTorch detects {num_gpus} GPUs")
+    setup_memory_environment()
+    # from huggingface_hub import hf_hub_download
+    # import os
+    # import shutil
+    # file_path = hf_hub_download(
+    #     repo_id="Kijai/WanVideo_comfy", 
+    #     filename="Wan2_1-I2V-ATI-14B_fp16.safetensors"
+    # )
+    # print(file_path)
+    # target_dir = "./downloads"
+    # os.makedirs(target_dir, exist_ok=True)  # Create it if it doesn't exist
 
-    # Move the file
-    shutil.copy(file_path, os.path.join(target_dir, "Wan2_1-I2V-ATI-14B_fp16.safetensors"))
+    # # Move the file
+    # shutil.copy(file_path, os.path.join(target_dir, "Wan2_1-I2V-ATI-14B_fp16.safetensors"))
     # Setup paths
     checkpoint_dir = "downloads/Wan2_1-I2V-ATI-14B_fp16.safetensors"
     quantized_model_path = "/path/to/quantized/wan_model_int8.pt"  # Optional
