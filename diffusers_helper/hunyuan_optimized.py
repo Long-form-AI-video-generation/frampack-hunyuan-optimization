@@ -1,7 +1,7 @@
 import torch
 
 from diffusers.pipelines.hunyuan_video.pipeline_hunyuan_video import DEFAULT_PROMPT_TEMPLATE
-from diffusers_helper.utils import crop_or_pad_yield_mask
+from diffusers_helper.utils_optimized import crop_or_pad_yield_mask
 
 
 @torch.no_grad()
@@ -102,7 +102,6 @@ def vae_decode(latents, vae, image_mode=False):
         image = torch.cat(image, dim=2)
 
     return image
-
 
 @torch.no_grad()
 def vae_encode(image, vae):

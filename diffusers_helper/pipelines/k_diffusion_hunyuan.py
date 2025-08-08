@@ -1,9 +1,9 @@
 import torch
 import math
 
-from diffusers_helper.k_diffusion.uni_pc_fm import sample_unipc
+from diffusers_helper.k_diffusion.uni_pc_fm_optimized import sample_unipc
 from diffusers_helper.k_diffusion.wrapper import fm_wrapper
-from diffusers_helper.utils import repeat_to_batch_size
+from diffusers_helper.utils_optimized import repeat_to_batch_size
 
 
 def flux_time_shift(t, mu=1.15, sigma=1.0):
